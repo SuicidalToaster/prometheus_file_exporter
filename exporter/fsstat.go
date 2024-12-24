@@ -18,27 +18,29 @@ var PathFileCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
 }, []string{"path"})
 
 func GetFSMetrics(cfg config.ExporterConfig) {
-	switch cfg.ShowRootOnly {
-	case true:
-		for _, v := range cfg.FilePaths {
-			go func() {
-				for {
-					var cnt int
-					err := filepath.WalkDir(v, func(path string, d fs.DirEntry, err error) error {
-						if !d.IsDir() {
-							cnt++
-						}
-						return nil
-					})
-					if err != nil {
-						log.Println(err)
+
+	for _, v := range cfg.FilePaths {
+		go func() {
+			for {
+				var fileCount int
+				err := filepath.WalkDir(v, func(path string, d fs.DirEntry, err error) error {
+					switch d.IsDir() {
+					case true:
+
+					case false:
+						fileCount++
 					}
-					PathFileCount.WithLabelValues(v).Set(0)
-					PathFileCount.WithLabelValues(v).Set(float64(cnt))
-					cnt = 0
-					time.Sleep(10 * time.Second)
+					return nil
+				})
+				if err != nil {
+					log.Println(err)
 				}
-			}()
-		}
+				PathFileCount.WithLabelValues(v).Set(0)
+				PathFileCount.WithLabelValues(v).Set(float64(fileCount))
+				fileCount = 0
+				time.Sleep(10 * time.Second)
+			}
+		}()
 	}
+
 }

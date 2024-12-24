@@ -14,6 +14,7 @@ import (
 var conf = config.GetConfig()
 
 func main() {
+
 	go exporter.GetFSMetrics(conf)
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())

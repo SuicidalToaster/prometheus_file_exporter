@@ -9,7 +9,6 @@ type ExporterConfig struct {
 	FilePaths        []string
 	ExcludeFilePaths []string
 	WalkDepth        int
-	ShowRootOnly     bool
 }
 
 type arrayFlags []string
@@ -18,7 +17,6 @@ var (
 	addrFlag         = flag.String("port", "9111", "set listening port. Required")
 	filePaths        arrayFlags
 	excludeFilePaths arrayFlags
-	ShowRootOnly     = flag.Bool("showRootOnly", true, "show root in exporter only")
 	walkDepth        = flag.Int("depth", -1, "--depth 1 --observe /data will observe only files in /data dir and will not go into dirs under /data. Value of -1 will walk through all children directories")
 )
 
@@ -40,6 +38,5 @@ func GetConfig() ExporterConfig {
 	cfg.ExcludeFilePaths = excludeFilePaths
 	cfg.FilePaths = filePaths
 	cfg.WalkDepth = *walkDepth
-	cfg.ShowRootOnly = *ShowRootOnly
 	return cfg
 }
