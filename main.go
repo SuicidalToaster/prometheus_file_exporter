@@ -2,20 +2,19 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
-	"time"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/SuicidalToaster/prometheus_file_exporter/config"
 	"github.com/SuicidalToaster/prometheus_file_exporter/exporter"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var conf = config.GetConfig()
 
 func main() {
-	start := time.Now()
 	go exporter.GetFSMetrics(conf)
-	fmt.Printf("%s", time.Since(start))
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -26,5 +25,8 @@ func main() {
 		// ErrorLog: log.Default(),
 		Handler: mux,
 	}
-	srv.ListenAndServe()
+	err := srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
