@@ -34,9 +34,11 @@ func GetConfig() ExporterConfig {
 	flag.Var(&filePaths, "observe", "set watched dirs \n --observe ./ --observe=/data")
 	flag.Var(&excludeFilePaths, "exclude", "exclude watched dirs \n --observe /data --exclude=/data/bad-data")
 	flag.Parse()
+	
 	cfg.Addr = *addrFlag
 	cfg.ExcludeFilePaths = excludeFilePaths
 	cfg.FilePaths = filePaths
 	cfg.WalkDepth = *walkDepth
+
 	return cfg
 }

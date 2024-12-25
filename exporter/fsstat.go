@@ -21,20 +21,22 @@ func GetFSMetrics(cfg config.ExporterConfig) {
 
 	for _, v := range cfg.FilePaths {
 		go func() {
-			for {
+			for { 
 				var fileCount int
-				err := filepath.WalkDir(v, func(path string, d fs.DirEntry, err error) error {
-					switch d.IsDir() {
+				err := filepath.WalkDir(v, func(path string, d fs.DirEntry, err error) error { // declare function out of loop to save resources. send fileCount to channel 
+					switch d.IsDir() { // use if clause
 					case true:
 
 					case false:
 						fileCount++
 					}
+
 					return nil
 				})
 				if err != nil {
 					log.Println(err)
 				}
+
 				PathFileCount.WithLabelValues(v).Set(0)
 				PathFileCount.WithLabelValues(v).Set(float64(fileCount))
 				fileCount = 0

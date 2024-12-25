@@ -11,21 +11,23 @@ import (
 	"github.com/SuicidalToaster/prometheus_file_exporter/exporter"
 )
 
-var conf = config.GetConfig()
+var conf = config.GetConfig() // no need global var, move to main
 
 func main() {
-
 	go exporter.GetFSMetrics(conf)
+
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s", "prometheus_file_exporter. Exports various fs metrics")
 	})
+	
 	srv := http.Server{
 		Addr: ":" + conf.Addr,
 		// ErrorLog: log.Default(),
 		Handler: mux,
 	}
+	
 	err := srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
