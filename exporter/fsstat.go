@@ -50,7 +50,7 @@ func GetFSMetrics(cfg config.ExporterConfig) {
 				PathFileCount.WithLabelValues(v).Set(0)
 				PathFileCount.WithLabelValues(v).Set(float64(fileCount))
 				fileCount = 0
-				time.Sleep(10 * time.Second)
+				time.Sleep(30 * time.Second)
 			}
 		}()
 	}
