@@ -8,8 +8,10 @@ Counts files in given directory
 ### Flags
 
 --observe <path to observed dir> -- sets directory path which should be monitored for file count
+
 --exclude <path to excluded dir> -- works with --observe. If path given in --observe contains path given in --exclude then that path is being ignored in file_count.
---port -- Configures listening port for exporter
+
+--port -- Configures listening port for exporter. Defaults to 9111
 
 ### Example
 Example with given tree:
