@@ -23,7 +23,26 @@ a
 | |____B
 |____A
 ```
-Directory 'a' contains file 'A' and subdir 'b'. We can see that there are 3 total files represented by numbers. If we pass plain --observe=/a the result of path_file_count will be 3. In case we pass --exclude=/a/b/c --observe=/a value of path_file_count will be 2  
+Directory 'a' contains file 'A' and subdir 'b'. We can see that there are 3 total files represented by numbers. If we pass plain --observe=/a the result of path_file_count will be 3. In case we pass --exclude=/a/b/c --observe=/a value of path_file_count will be 2
 
 ### Command
+
+
+```
 prometheus_file_exporter [--observe=<>] [--exclude=<>] [--port=<>]
+```
+
+## Best Practice
+
+!! DO NOT PUT DIRECTORY WITH LARGE NUMBER OF SUBDIRECTORIES IN A SINGLE --observe !!!
+
+
+### GOOD
+```bash
+prometheus_file_exporter --observe=/data/subdir-1 --observe=/data/subdir-2 --observe=/data/subdir-3 
+```
+### BAD
+
+```bash
+prometheus_file_exporter --observe=/data/
+```
