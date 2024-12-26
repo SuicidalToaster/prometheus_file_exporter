@@ -6,6 +6,7 @@ import (
 	"log"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -17,7 +18,7 @@ import (
 var PathFileCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
 	Name: "path_file_count",
 	Help: "Shows cumulative directory file count like du",
-}, []string{"path"})
+}, []string{"path", "exactCount"})
 
 func GetFSMetrics(cfg config.ExporterConfig) {
 
@@ -27,30 +28,25 @@ func GetFSMetrics(cfg config.ExporterConfig) {
 				start := time.Now()
 				var fileCount int
 				err := filepath.WalkDir(v, func(path string, d fs.DirEntry, err error) error {
-					switch d.Type() {
-					case fs.ModeSymlink:
-						return nil
-					default:
-						switch d.IsDir() {
-						case true:
-							if slices.Contains(cfg.ExcludeFilePaths, path) {
-								return filepath.SkipDir
-							}
-						case false:
-							fileCount++
+					switch d.IsDir() {
+					case true:
+						if slices.Contains(cfg.ExcludeFilePaths, path) {
+							return filepath.SkipDir
 						}
-
+					case false:
+						fileCount++
 					}
+
 					return nil
 				})
 				if err != nil {
 					log.Println(err)
 				}
 				fmt.Printf("%s\n", time.Since(start))
-				PathFileCount.WithLabelValues(v).Set(0)
-				PathFileCount.WithLabelValues(v).Set(float64(fileCount))
+				PathFileCount.Reset()
+				PathFileCount.WithLabelValues(v, strconv.Itoa(fileCount)).Set(float64(fileCount))
 				fileCount = 0
-				time.Sleep(30 * time.Second)
+				time.Sleep(5 * time.Second)
 			}
 		}()
 	}
