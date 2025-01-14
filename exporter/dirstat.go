@@ -1,59 +1,54 @@
 package exporter
 
 import (
+	"fmt"
+	"io/fs"
 	"log"
-	"os"
+	"path/filepath"
 	"slices"
-	"strings"
+	"strconv"
+	"time"
 
-	"github.com/SuicidalToaster/prometheus_file_exporter/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+
+	"github.com/SuicidalToaster/prometheus_file_exporter/config"
 )
 
 var PathFileCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
 	Name: "path_file_count",
 	Help: "Shows cumulative directory file count like du",
-}, []string{"path"})
+}, []string{"path", "exactCount"})
 
 func GetFSMetrics(cfg config.ExporterConfig) {
+
 	for _, v := range cfg.FilePaths {
 		go func() {
-			PathFileCount.WithLabelValues(v).Set(0)
-			CountFiles(v, v, &cfg)
+			for {
+				start := time.Now()
+				var fileCount int
+				err := filepath.WalkDir(v, func(path string, d fs.DirEntry, err error) error {
+					switch d.IsDir() {
+					case true:
+						if slices.Contains(cfg.ExcludeFilePaths, path) {
+							return filepath.SkipDir
+						}
+					case false:
+						fileCount++
+					}
+
+					return nil
+				})
+				if err != nil {
+					log.Println(err)
+				}
+				fmt.Printf("%s\n", time.Since(start))
+				PathFileCount.Reset()
+				PathFileCount.WithLabelValues(v, strconv.Itoa(fileCount)).Set(float64(fileCount))
+				fileCount = 0
+				time.Sleep(5 * time.Second)
+			}
 		}()
 	}
-}
 
-func CountFiles(rootDir string, curDir string, cfg *config.ExporterConfig) {
-
-	if !strings.Contains(curDir, rootDir) {
-		curDir = rootDir + strings.TrimSuffix(curDir, "/")
-	}
-	// absDir = absDir + "/" + relPath
-	tree, err := os.ReadDir(curDir)
-	if err != nil {
-		log.Printf("%s", err.Error())
-		return
-	}
-	if cfg.WalkDepth == 0 {
-		return
-	}
-	cfg.WalkDepth = cfg.WalkDepth - 1
-	for _, v := range tree {
-		if v.IsDir() {
-			if slices.Contains(cfg.ExcludeFilePaths, curDir+"/"+v.Name()) {
-				continue
-			}
-			go CountFiles(rootDir, curDir+"/"+v.Name(), cfg)
-		} else {
-			switch curDir == rootDir {
-			case true:
-				PathFileCount.WithLabelValues(curDir).Inc()
-			case false:
-				PathFileCount.WithLabelValues(curDir).Inc()
-				PathFileCount.WithLabelValues(rootDir).Inc()
-			}
-		}
-	}
 }

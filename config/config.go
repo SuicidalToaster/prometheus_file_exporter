@@ -19,7 +19,7 @@ var (
 	filePaths        arrayFlags
 	excludeFilePaths arrayFlags
 	hashFiles        arrayFlags
-	walkDepth        = flag.Int("depth", -1, "--depth 1 --observe /data will observe only files in /data dir and will not go into dirs under /data")
+	walkDepth        = flag.Int("depth", -1, "--depth 1 --observe /data will observe only files in /data dir and will not go into dirs under /data. Value of -1 will walk through all children directories")
 )
 
 func (i *arrayFlags) String() string {

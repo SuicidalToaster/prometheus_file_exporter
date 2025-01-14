@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/SuicidalToaster/prometheus_file_exporter/config"
@@ -23,5 +24,8 @@ func main() {
 		// ErrorLog: log.Default(),
 		Handler: mux,
 	}
-	srv.ListenAndServe()
+	err := srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
