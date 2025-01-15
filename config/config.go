@@ -8,6 +8,7 @@ type ExporterConfig struct {
 	Addr             string
 	FilePaths        []string
 	ExcludeFilePaths []string
+	HashFiles        []string
 	WalkDepth        int
 }
 
@@ -17,6 +18,7 @@ var (
 	addrFlag         = flag.String("port", "9111", "set listening port. Required")
 	filePaths        arrayFlags
 	excludeFilePaths arrayFlags
+	hashFiles        arrayFlags
 	walkDepth        = flag.Int("depth", -1, "--depth 1 --observe /data will observe only files in /data dir and will not go into dirs under /data. Value of -1 will walk through all children directories")
 )
 
@@ -33,10 +35,12 @@ func GetConfig() ExporterConfig {
 	var cfg ExporterConfig
 	flag.Var(&filePaths, "observe", "set watched dirs \n --observe ./ --observe=/data")
 	flag.Var(&excludeFilePaths, "exclude", "exclude watched dirs \n --observe /data --exclude=/data/bad-data")
+	flag.Var(&hashFiles, "hash", "watch file hashsum --hash=/data/file")
 	flag.Parse()
 	cfg.Addr = *addrFlag
 	cfg.ExcludeFilePaths = excludeFilePaths
 	cfg.FilePaths = filePaths
 	cfg.WalkDepth = *walkDepth
+	cfg.HashFiles = *&hashFiles
 	return cfg
 }
