@@ -11,10 +11,8 @@ import (
 	"github.com/SuicidalToaster/prometheus_file_exporter/exporter"
 )
 
-var conf = config.GetConfig()
-
 func main() {
-
+	conf := config.GetConfig()
 	go exporter.GetFSMetrics(conf)
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())

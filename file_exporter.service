@@ -1,0 +1,7 @@
+[Unit]
+Description=prometheus_file_exporter as systemd.service
+
+[Service]
+
+ExecStart=/bin/prometheus_file_exporter --observe=/data
+Restart=Always
