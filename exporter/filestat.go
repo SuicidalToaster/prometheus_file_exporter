@@ -12,7 +12,7 @@ import (
 )
 
 var FileHash = promauto.NewGaugeVec(prometheus.GaugeOpts{
-	Name: "file_hash",
+	Name: "pfe_file_hash",
 }, []string{"hash", "path"})
 
 func GetFileList(p []string) {

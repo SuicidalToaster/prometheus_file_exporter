@@ -41,6 +41,6 @@ func GetConfig() ExporterConfig {
 	cfg.ExcludeFilePaths = excludeFilePaths
 	cfg.FilePaths = filePaths
 	cfg.WalkDepth = *walkDepth
-	cfg.HashFiles = *&hashFiles
+	cfg.HashFiles = hashFiles
 	return cfg
 }
