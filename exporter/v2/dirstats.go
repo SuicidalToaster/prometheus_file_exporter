@@ -68,6 +68,7 @@ func countFiles(path string, ch chan int) {
 	}
 	wg.Add(len(de))
 	go func() {
+		lock.Lock()
 		for _, v := range de {
 			switch v.Type() {
 			case os.ModeDir:
@@ -85,9 +86,10 @@ func countFiles(path string, ch chan int) {
 				// break
 			}
 		}
+		lock.Unlock()
 	}()
+
 	wg.Wait()
-	lock.Lock()
+
 	ch <- totalInDir
-	lock.Unlock()
 }
