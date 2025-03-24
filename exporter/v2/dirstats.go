@@ -15,6 +15,35 @@ var PathFileCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
 	Help: "Shows cumulative directory file count like du",
 }, []string{"path"})
 
+type Task struct {
+	ID int
+}
+
+func (wp *Task) Do(f func()) {
+	f()
+}
+
+type WorkerPool struct {
+	Tasks       []Task
+	concurrency int
+	taskChan    chan Task
+	wg          sync.WaitGroup
+}
+
+func (wp *WorkerPool) worker() {
+	for task := range wp.taskChan {
+		task.Do()
+	}
+}
+
+func (wp *WorkerPool) Start() {
+	wp.taskChan = make(chan Task, len(wp.Tasks))
+	for i := range wp.concurrency {
+		go wp.worker()
+	}
+
+}
+
 func GetTotalFiles(path string) (int, error) {
 	res := make(chan int)
 	total := 0
