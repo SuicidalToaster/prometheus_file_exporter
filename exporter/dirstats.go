@@ -1,4 +1,4 @@
-package v2
+package exporter
 
 import (
 	"fmt"
@@ -14,35 +14,6 @@ var PathFileCount = promauto.NewGaugeVec(prometheus.GaugeOpts{
 	Name: "pfe_path_file_count",
 	Help: "Shows cumulative directory file count like du",
 }, []string{"path"})
-
-type Task struct {
-	ID int
-}
-
-func (wp *Task) Do(f func()) {
-	f()
-}
-
-type WorkerPool struct {
-	Tasks       []Task
-	concurrency int
-	taskChan    chan Task
-	wg          sync.WaitGroup
-}
-
-func (wp *WorkerPool) worker() {
-	for task := range wp.taskChan {
-		task.Do()
-	}
-}
-
-func (wp *WorkerPool) Start() {
-	wp.taskChan = make(chan Task, len(wp.Tasks))
-	for i := range wp.concurrency {
-		go wp.worker()
-	}
-
-}
 
 func GetTotalFiles(path string) (int, error) {
 	res := make(chan int)
@@ -88,7 +59,7 @@ var lock sync.Mutex
 
 func countFiles(path string, ch chan int) {
 
-	var wg = sync.WaitGroup{}
+	var wg sync.WaitGroup
 	var totalInDir int
 	de, err := os.ReadDir(path)
 	if err != nil {
@@ -97,25 +68,26 @@ func countFiles(path string, ch chan int) {
 	}
 	wg.Add(len(de))
 	go func() {
-		lock.Lock()
+		//defer wg.Done()
 		for _, v := range de {
 			switch v.Type() {
 			case os.ModeDir:
-				go func() {
+				func() {
+					defer wg.Done()
 					countFiles(filepath.Join(path, v.Name()), ch)
-					wg.Done()
 				}()
-				// break
+				break
 			case 0:
+				lock.Lock()
 				totalInDir++
+				lock.Unlock()
 				wg.Done()
-				// break
+				break
 			default:
 				wg.Done()
-				// break
+				break
 			}
 		}
-		lock.Unlock()
 	}()
 
 	wg.Wait()

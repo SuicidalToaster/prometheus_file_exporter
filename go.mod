@@ -2,12 +2,16 @@ module github.com/SuicidalToaster/prometheus_file_exporter
 
 go 1.24.0
 
-require github.com/prometheus/client_golang v1.21.0
+require (
+	github.com/fsnotify/fsnotify v1.7.0
+	github.com/prometheus/client_golang v1.21.0
+	github.com/spf13/viper v1.19.0
+	golang.org/x/sync v0.10.0
+)
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
@@ -23,7 +27,6 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.19.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect

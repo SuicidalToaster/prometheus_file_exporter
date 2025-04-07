@@ -2,17 +2,16 @@ package tests
 
 import (
 	"fmt"
+	"github.com/SuicidalToaster/prometheus_file_exporter/exporter"
 	"testing"
 	"time"
-
-	"github.com/SuicidalToaster/prometheus_file_exporter/exporter/v2"
 )
 
 func TestGetCurrentDir(t *testing.T) {
 
 	start := time.Now()
 	// GetCurrentDir("/home/Dan/gitbucket/prometheus_file_exporter")
-	count, err := v2.GetTotalFiles("/")
+	count, err := exporter.GetTotalFiles("/")
 	if err != nil {
 		t.Fatal(err)
 	}

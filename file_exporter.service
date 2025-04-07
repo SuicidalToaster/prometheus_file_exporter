@@ -2,6 +2,8 @@
 Description=prometheus_file_exporter as systemd.service
 
 [Service]
-
-ExecStart=/bin/prometheus_file_exporter --observe=/data
-Restart=Always
+User=root
+Group=root
+ExecStart=/bin/pfe
+Restart=always
+RestartSec=3
